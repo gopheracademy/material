@@ -17,6 +17,7 @@ type Module struct {
 	Description string   `json:"description"`
 	VideoCode   string   `json:"video_code"`
 	Topic       string   `json:"topic"`
+	Level       string   `json:"level"`
 	Lessons     []string `json:"lessons"`
 }
 
@@ -35,6 +36,19 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 		// Take note that the first argument to these Input-like functions
 		// is the string version of each Modules field, and must follow
 		// this pattern for auto-decoding and auto-encoding reasons:
+
+		editor.Field{
+			View: editor.Select("Level", m, map[string]string{
+				"label":       "Level",
+				"type":        "text",
+				"placeholder": "Enter the Level here",
+			}, map[string]string{
+				"Beginner":     "Beginner",
+				"Intermediate": "Intermediate",
+				"Advanced":     "Advanced",
+				"Expert":       "Expert",
+			}),
+		},
 		editor.Field{
 			View: editor.Input("Name", m, map[string]string{
 				"label":       "Name",
@@ -42,6 +56,7 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 				"placeholder": "Enter the Name here",
 			}),
 		},
+
 		editor.Field{
 			View: editor.Input("Title", m, map[string]string{
 				"label":       "Title",
@@ -58,13 +73,6 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 		},
 
 		editor.Field{
-			View: editor.Input("Description", m, map[string]string{
-				"label":       "Description",
-				"type":        "text",
-				"placeholder": "Enter the description here",
-			}),
-		},
-		editor.Field{
 			View: editor.Select("Topic", m, map[string]string{
 				"label":       "Topic",
 				"type":        "text",
@@ -75,6 +83,13 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 				"Git":                   "Git",
 				"Docker":                "Docker",
 				"Distributed Computing": "Distributed Computing",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("Description", m, map[string]string{
+				"label":       "Description",
+				"type":        "text",
+				"placeholder": "Enter the description here",
 			}),
 		},
 		editor.Field{
