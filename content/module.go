@@ -58,13 +58,6 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 		},
 
 		editor.Field{
-			View: editor.Input("Description", m, map[string]string{
-				"label":       "Description",
-				"type":        "text",
-				"placeholder": "Enter the description here",
-			}),
-		},
-		editor.Field{
 			View: editor.Select("Topic", m, map[string]string{
 				"label":       "Topic",
 				"type":        "text",
@@ -75,6 +68,13 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 				"Git":                   "Git",
 				"Docker":                "Docker",
 				"Distributed Computing": "Distributed Computing",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("Description", m, map[string]string{
+				"label":       "Description",
+				"type":        "text",
+				"placeholder": "Enter the description here",
 			}),
 		},
 		editor.Field{
