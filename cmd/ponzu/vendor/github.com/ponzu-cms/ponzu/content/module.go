@@ -16,6 +16,7 @@ type Module struct {
 	Subtitle    string   `json:"subtitle"`
 	Description string   `json:"description"`
 	VideoCode   string   `json:"video_code"`
+	Topic       string   `json:"topic"`
 	Lessons     []string `json:"lessons"`
 }
 
@@ -61,6 +62,19 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 				"label":       "Description",
 				"type":        "text",
 				"placeholder": "Enter the description here",
+			}),
+		},
+		editor.Field{
+			View: editor.Select("Topic", m, map[string]string{
+				"label":       "Topic",
+				"type":        "text",
+				"placeholder": "Enter the Topic here",
+			}, map[string]string{
+				"Go":                    "Go",
+				"Kubernetes":            "Kubernetes",
+				"Git":                   "Git",
+				"Docker":                "Docker",
+				"Distributed Computing": "Distributed Computing",
 			}),
 		},
 		editor.Field{
