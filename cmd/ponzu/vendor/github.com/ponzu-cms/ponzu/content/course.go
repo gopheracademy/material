@@ -11,11 +11,12 @@ import (
 type Course struct {
 	item.Item
 
-	Name      string   `json:"name"`
-	Title     string   `json:"title"`
-	Subtitle  string   `json:"subtitle"`
-	VideoCode string   `json:"video_code"`
-	Modules   []string `json:"modules"`
+	Name       string   `json:"name"`
+	Title      string   `json:"title"`
+	Subtitle   string   `json:"subtitle"`
+	VideoCode  string   `json:"video_code"`
+	Instructor string   `json:"instructor"`
+	Modules    []string `json:"modules"`
 }
 type CourseListResult struct {
 	Data []Course `json:"data"`
@@ -36,6 +37,7 @@ func (c *Course) MarshalEditor() ([]byte, error) {
 		// Take note that the first argument to these Input-like functions
 		// is the string version of each Course field, and must follow
 		// this pattern for auto-decoding and auto-encoding reasons:
+
 		editor.Field{
 			View: editor.Input("Name", c, map[string]string{
 				"label":       "Name",
@@ -43,6 +45,7 @@ func (c *Course) MarshalEditor() ([]byte, error) {
 				"placeholder": "Enter the Name here",
 			}),
 		},
+
 		editor.Field{
 			View: editor.Input("Title", c, map[string]string{
 				"label":       "Title",
@@ -57,6 +60,7 @@ func (c *Course) MarshalEditor() ([]byte, error) {
 				"placeholder": "Enter the Subtitle here",
 			}),
 		},
+
 		editor.Field{
 			View: reference.SelectRepeater("Modules", c, map[string]string{
 				"label":       "Module",
@@ -64,6 +68,15 @@ func (c *Course) MarshalEditor() ([]byte, error) {
 			},
 				"Module",
 				"{{ .name }}",
+			),
+		},
+		editor.Field{
+			View: reference.Select("Instructor", c, map[string]string{
+				"label":       "Instructor",
+				"placeholder": "Enter the instructor here",
+			},
+				"Instructor",
+				"{{ .first_name }}",
 			),
 		},
 	)
