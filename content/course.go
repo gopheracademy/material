@@ -60,7 +60,13 @@ func (c *Course) MarshalEditor() ([]byte, error) {
 				"placeholder": "Enter the Subtitle here",
 			}),
 		},
-
+		editor.Field{
+			View: editor.Input("VideoCode", c, map[string]string{
+				"label":       "Video Code",
+				"type":        "text",
+				"placeholder": "Enter the Video Codehere",
+			}),
+		},
 		editor.Field{
 			View: reference.SelectRepeater("Modules", c, map[string]string{
 				"label":       "Module",

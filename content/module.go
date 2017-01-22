@@ -71,7 +71,13 @@ func (m *Module) MarshalEditor() ([]byte, error) {
 				"placeholder": "Enter the Subtitle here",
 			}),
 		},
-
+		editor.Field{
+			View: editor.Input("VideoCode", m, map[string]string{
+				"label":       "Video Code",
+				"type":        "text",
+				"placeholder": "Enter the Video Codehere",
+			}),
+		},
 		editor.Field{
 			View: editor.Select("Topic", m, map[string]string{
 				"label":       "Topic",

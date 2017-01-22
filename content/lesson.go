@@ -10,12 +10,13 @@ import (
 type Lesson struct {
 	item.Item
 
-	Name      string `json:"name"`
-	Title     string `json:"title"`
-	Subtitle  string `json:"subtitle"`
-	Content   string `json:"content"`
-	VideoCode string `json:"video_code"`
-	Thumb     string `json:"thumb"`
+	Name         string `json:"name"`
+	Title        string `json:"title"`
+	Subtitle     string `json:"subtitle"`
+	Content      string `json:"content"`
+	VideoCode    string `json:"video_code"`
+	GithubLesson string `json:"github_lesson"`
+	Thumb        string `json:"thumb"`
 }
 
 type LessonListResult struct {
@@ -56,6 +57,20 @@ func (l *Lesson) MarshalEditor() ([]byte, error) {
 				"label":       "Subtitle",
 				"type":        "text",
 				"placeholder": "Enter the Subtitle here",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("VideoCode", l, map[string]string{
+				"label":       "Video Code",
+				"type":        "text",
+				"placeholder": "Enter the Video Code here",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("GithubLesson", l, map[string]string{
+				"label":       "Github Lesson",
+				"type":        "text",
+				"placeholder": "Enter the URL to the Github Lesson Repository",
 			}),
 		},
 		editor.Field{
