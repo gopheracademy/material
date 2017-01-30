@@ -30,6 +30,10 @@ func (c *Course) String() string {
 	return c.Name
 }
 
+func (c *Course) Push() []string {
+	return []string{"modules"}
+}
+
 // MarshalEditor writes a buffer of html to edit a Course within the CMS
 // and implements editor.Editable
 func (c *Course) MarshalEditor() ([]byte, error) {

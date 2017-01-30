@@ -8,13 +8,37 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
+/*
+func init() {
+	go func() {
+		for {
+			time.Sleep(30 * time.Minute)
+			jobs := db.ContentAll("Job")
+			for _, jj := range jobs {
+				var j Job
+				err := json.Unmarshal(jj, &j)
+				if err != nil {
+					continue
+				}
+				//if j.Timestamp + time.Duration(30*time.Day)  {
+
+				//kill it
+				//	db.D
+				//}
+			}
+		}
+	}()
+}
+*/
 type Job struct {
 	item.Item
 
 	Title        string `json:"title"`
+	Company      string `json:"company"`
 	Description  string `json:"description"`
 	Website      string `json:"website"`
 	Requirements string `json:"requirements"`
+	RemoteOK     bool   `json:"remote_ok"`
 	ContactPhone string `json:"contact_phone"`
 	ContactEmail string `json:"contact_email"`
 	ContactName  string `json:"contact_name"`
@@ -22,6 +46,16 @@ type Job struct {
 
 func (j *Job) Accept(r *http.Request) error {
 	return nil
+}
+
+func (j *Job) Approve(r *http.Request) error {
+	return nil
+}
+
+func (j *Job) AfterApprove(r *http.Request) error {
+	// maybe add the 30 day expiration to a new field here
+	return nil
+
 }
 
 // MarshalEditor writes a buffer of html to edit a Job within the CMS
@@ -39,10 +73,22 @@ func (j *Job) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
+			View: editor.Input("Company", j, map[string]string{
+				"label":       "Company",
+				"type":        "text",
+				"placeholder": "Enter the Company here",
+			}),
+		},
+		editor.Field{
 			View: editor.Input("Description", j, map[string]string{
 				"label":       "Description",
 				"type":        "text",
 				"placeholder": "Enter the Description here",
+			}),
+		},
+		editor.Field{
+			View: editor.Checkbox("RemoteOK", j, map[string]string{}, map[string]string{
+				"true": "Remote OK?",
 			}),
 		},
 		editor.Field{
@@ -61,23 +107,23 @@ func (j *Job) MarshalEditor() ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Input("ContactPhone", j, map[string]string{
-				"label":       "ContactPhone",
+				"label":       "Contact Phone",
 				"type":        "text",
-				"placeholder": "Enter the ContactPhone here",
+				"placeholder": "Enter the Contact Phone here",
 			}),
 		},
 		editor.Field{
 			View: editor.Input("ContactEmail", j, map[string]string{
-				"label":       "ContactEmail",
+				"label":       "Contact Email",
 				"type":        "text",
-				"placeholder": "Enter the ContactEmail here",
+				"placeholder": "Enter the Contact Email here",
 			}),
 		},
 		editor.Field{
 			View: editor.Input("ContactName", j, map[string]string{
-				"label":       "ContactName",
+				"label":       "Contact Name",
 				"type":        "text",
-				"placeholder": "Enter the ContactName here",
+				"placeholder": "Enter the Contact Name here",
 			}),
 		},
 	)

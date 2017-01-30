@@ -19,13 +19,14 @@ import (
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
 	"github.com/ponzu-cms/ponzu/system/api"
+	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
-	"github.com/tidwall/gjson"
 
 	"github.com/gorilla/schema"
 	emailer "github.com/nilslice/email"
 	"github.com/nilslice/jwt"
+	"github.com/tidwall/gjson"
 )
 
 func adminHandler(res http.ResponseWriter, req *http.Request) {
@@ -186,6 +187,37 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
+}
+
+func backupHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.URL.Query().Get("source") {
+	case "system":
+		err := db.Backup(res)
+		if err != nil {
+			log.Println("Failed to run backup on system:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	case "analytics":
+		err := analytics.Backup(res)
+		if err != nil {
+			log.Println("Failed to run backup on analytics:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	case "uploads":
+		err := upload.Backup(res)
+		if err != nil {
+			log.Println("Failed to run backup on uploads:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	default:
+		res.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func configUsersHandler(res http.ResponseWriter, req *http.Request) {
@@ -1325,56 +1357,28 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeApprove(req)
+	err = hook.BeforeApprove(res, req)
 	if err != nil {
 		log.Println("Error running BeforeApprove hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
 	// call its Approve method
-	err = m.Approve(req)
+	err = m.Approve(res, req)
 	if err != nil {
 		log.Println("Error running Approve method in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
-	err = hook.AfterApprove(req)
+	err = hook.AfterApprove(res, req)
 	if err != nil {
 		log.Println("Error running AfterApprove hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
-	err = hook.BeforeSave(req)
+	err = hook.BeforeSave(res, req)
 	if err != nil {
 		log.Println("Error running BeforeSave hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
@@ -1396,16 +1400,9 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
 	req = req.WithContext(ctx)
 
-	err = hook.AfterSave(req)
+	err = hook.AfterSave(res, req)
 	if err != nil {
 		log.Println("Error running AfterSave hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
@@ -1637,16 +1634,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err = hook.BeforeSave(req)
+		err = hook.BeforeSave(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running BeforeSave method in editHandler for:", t, err)
 			return
 		}
 
@@ -1667,16 +1657,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
 		req = req.WithContext(ctx)
 
-		err = hook.AfterSave(req)
+		err = hook.AfterSave(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running AfterSave method in editHandler for:", t, err)
 			return
 		}
 
@@ -1760,30 +1743,16 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	reject := req.URL.Query().Get("reject")
 	if reject == "true" {
-		err = hook.BeforeReject(req)
+		err = hook.BeforeReject(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running BeforeReject method in deleteHandler for:", t, err)
 			return
 		}
 	}
 
-	err = hook.BeforeDelete(req)
+	err = hook.BeforeDelete(res, req)
 	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
+		log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
 		return
 	}
 
@@ -1794,30 +1763,16 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.AfterDelete(req)
+	err = hook.AfterDelete(res, req)
 	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
+		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
 		return
 	}
 
 	if reject == "true" {
-		err = hook.AfterReject(req)
+		err = hook.AfterReject(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running AfterReject method in deleteHandler for:", t, err)
 			return
 		}
 	}
@@ -2240,16 +2195,9 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		// if Hookable, call BeforeSave prior to saving
 		h, ok := at().(item.Hookable)
 		if ok {
-			err := h.BeforeSave(req)
+			err := h.BeforeSave(res, req)
 			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				errView, err := Error500()
-				if err != nil {
-					return
-				}
-
-				res.Write(errView)
+				log.Println("Error running BeforeSave method in addonHandler for:", id, err)
 				return
 			}
 		}
