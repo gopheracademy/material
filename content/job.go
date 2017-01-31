@@ -48,6 +48,7 @@ type Job struct {
 }
 
 func (j *Job) Accept(w http.ResponseWriter, r *http.Request) error {
+	http.Redirect(w, r, "https://gopheracademy.com/jobs/thanks", 301)
 	return nil
 }
 
@@ -89,7 +90,7 @@ func (j *Job) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Input("Description", j, map[string]string{
+			View: editor.Textarea("Description", j, map[string]string{
 				"label":       "Description",
 				"type":        "text",
 				"placeholder": "Enter the Description here",
@@ -108,7 +109,7 @@ func (j *Job) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Input("Requirements", j, map[string]string{
+			View: editor.Textarea("Requirements", j, map[string]string{
 				"label":       "Requirements",
 				"type":        "text",
 				"placeholder": "Enter the Requirements here",
