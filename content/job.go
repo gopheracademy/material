@@ -3,6 +3,7 @@ package content
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ponzu-cms/ponzu/management/editor"
 	"github.com/ponzu-cms/ponzu/system/item"
@@ -33,27 +34,28 @@ func init() {
 type Job struct {
 	item.Item
 
-	Title        string `json:"title"`
-	Company      string `json:"company"`
-	Description  string `json:"description"`
-	Website      string `json:"website"`
-	Requirements string `json:"requirements"`
-	RemoteOK     bool   `json:"remote_ok"`
-	ContactPhone string `json:"contact_phone"`
-	ContactEmail string `json:"contact_email"`
-	ContactName  string `json:"contact_name"`
+	Title          string    `json:"title"`
+	Company        string    `json:"company"`
+	Location       string    `json:"location"`
+	Description    string    `json:"description"`
+	Website        string    `json:"website"`
+	Requirements   string    `json:"requirements"`
+	RemoteOK       bool      `json:"remote_ok"`
+	ContactPhone   string    `json:"contact_phone"`
+	ContactEmail   string    `json:"contact_email"`
+	ContactName    string    `json:"contact_name"`
+	ExpirationDate time.Time `json:"expiration_date"`
 }
 
-func (j *Job) Accept(r *http.Request) error {
+func (j *Job) Accept(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (j *Job) Approve(r *http.Request) error {
+func (j *Job) Approve(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (j *Job) AfterApprove(r *http.Request) error {
-	// maybe add the 30 day expiration to a new field here
+func (j *Job) AfterApprove(w http.ResponseWriter, r *http.Request) error {
 	return nil
 
 }
@@ -77,6 +79,13 @@ func (j *Job) MarshalEditor() ([]byte, error) {
 				"label":       "Company",
 				"type":        "text",
 				"placeholder": "Enter the Company here",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("Location", j, map[string]string{
+				"label":       "Location",
+				"type":        "text",
+				"placeholder": "Enter the Location here",
 			}),
 		},
 		editor.Field{
